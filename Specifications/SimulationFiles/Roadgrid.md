@@ -7,6 +7,8 @@ Int64	Number of points
 \]
 Int64	Number of roads
 \[
+  Double  Speed limit
+  Int64 Lanes
   Int64	Number of points
   \[
     Int64	Index of point
