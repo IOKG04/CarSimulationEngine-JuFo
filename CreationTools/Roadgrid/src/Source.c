@@ -68,15 +68,37 @@ int main(int argslength, char **args){
 			scanf("%lli", &(roads[i].points[j].index));
 			printf("\tIs point %lli in road %lli a corner (1 or 0):\t", j, i);
 			scanf("%c", &(roads[i].points[j].is_corner));
+			scanf("%c", &(roads[i].points[j].is_corner));
 			roads[i].points[j].is_corner -= 48;
 		}
 
-		// TODO: add lanes and speedlimit
+		// add lanes and speedlimit
+		printf("\nNumber of lanes road %lli has (long long): ", i);
+		scanf("%lli", &(roads[i].lanes));
+		printf("\nSpeedlimit road %lli has (Double): ", i);
+		scanf("%lf", &(roads[i].speedlimit));
 	}
 
-	// free and return
+	// create and open output file
+	FILE *output_file = fopen(args[1], "w");
+	fclose(output_file);
+	output_file = fopen(args[1], "a");
+
+	// write data to file
+	fwrite(&number_of_points, sizeof(long long), 1, output_file);
+	fwrite(points, sizeof(Point), number_of_points, output_file);
+	fwrite(&number_of_roads, sizeof(long long), 1, output_file);
+	for(int i = 0; i < number_of_roads; ++i){
+	    fwrite(&(roads[i].speedlimit), sizeof(double), 1, output_file);
+	    fwrite(&(roads[i].lanes), sizeof(long long), 1, output_file);
+	    fwrite(&(roads[i].number_of_points), sizeof(long long), 1, output_file);
+	    fwrite(roads[i].points, sizeof(RoadPoint), roads[i].number_of_points, output_file);
+	}
+
+	// free close and return
 	free(points);
 	for(long long i = 0; i < number_of_roads; ++i) free(roads[i].points);
 	free(roads);
+	fclose(output_file);
 	return 0;
 }

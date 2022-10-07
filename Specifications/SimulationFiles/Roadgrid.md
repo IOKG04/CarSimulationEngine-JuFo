@@ -12,6 +12,6 @@ Int64	Number of roads
   Int64	Number of points
   \[
     Int64	Index of point
-    Bool	Is corner
+    Int64	Is corner (0 = False ; 1 = True)
   \]
 \]
