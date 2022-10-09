@@ -1,9 +1,6 @@
 using System;
-using System.IO;
 
 namespace Visualization;
-
-//TODO: Add Functions fo reading from byte[] / File
 
 public struct Roadgrid{
     public Int64 numberOfPoints;
@@ -16,6 +13,43 @@ public struct Roadgrid{
 	points = _points;
 	numberOfRoads = _roads.Length;
 	roads  = _roads;
+    }
+
+    public static Roadgrid FromFile(byte[] bytes){
+	Int32 currentByte = 0;
+
+	//Get Points
+	Point[] points = new Point[BitConverter.ToInt64(bytes, currentByte)];
+	currentByte += sizeof(Int64);
+	for(Int64 i = 0; i < points.LongLength; i++){
+	    double x = BitConverter.ToDouble(bytes, currentByte);
+	    currentByte += sizeof(double);
+	    double y = BitConverter.ToDouble(bytes, currentByte);
+	    currentByte += sizeof(double);
+	    points[i] = new Point(x, y);
+	}
+
+	//GetRoads
+	Road[] roads = new Road[BitConverter.ToInt64(bytes, currentByte)];
+	currentByte += sizeof(Int64);
+	for(Int64 i = 0; i < roads.LongLength; i++){
+	    double speedLimit = BitConverter.ToDouble(bytes, currentByte);
+	    currentByte += sizeof(double);
+	    Int64 lanes = BitConverter.ToInt64(bytes, currentByte);
+	    currentByte += sizeof(Int64);
+	    RoadPoint[] roadPoints = new RoadPoint[BitConverter.ToInt64(bytes, currentByte)];
+	    currentByte += sizeof(Int64);
+	    for(Int64 j = 0; j < roadPoints.LongLength; j++){
+		Int64 index = BitConverter.ToInt64(bytes, currentByte);
+		currentByte += sizeof(Int64);
+		Int64 isCorner = BitConverter.ToInt64(bytes, currentByte);
+		currentByte += sizeof(Int64);
+		roadPoints[j] = new RoadPoint(index, isCorner);
+	    }
+	    roads[i] = new Road(speedLimit, lanes, roadPoints);
+	}
+
+	return new Roadgrid(points, roads);
     }
 }
 
