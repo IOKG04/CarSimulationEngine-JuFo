@@ -20,7 +20,8 @@ public class Program{
 	    Console.WriteLine("Usage:");
 	    Console.WriteLine(" Visualization [options] [RG_file] [SF_file]\tVisualizes [RG_file] and [SF_file] with [options] and stores the result in [SF_file].png");
 	    Console.WriteLine(" Visualization [options] -r [RG_file]\t\tVisualizes [RG_file] with [options] and stores the result in [RG_file].png");
-	    Console.WriteLine("\nOptions:"); Console.WriteLine(" -r\t--roadgrid\t\tOnly visualizes a RG_file");
+	    Console.WriteLine("\nOptions:");
+	    Console.WriteLine(" -r\t--roadgrid\t\tOnly visualizes a RG_file");
 	    Console.WriteLine(" -o\t--output [File]\t\tStores the result in [File] instead of the default location");
 	    //Possibly add dimensions option
 	    //Possibly add bufferSize option
