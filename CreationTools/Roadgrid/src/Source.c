@@ -20,7 +20,7 @@ struct _Road{
 	double		speedlimit;
 	long long	lanes;
 	long long	number_of_points;
-	RoadPoint    *points;
+	RoadPoint	*points;
 };
 typedef struct _Road Road;
 
