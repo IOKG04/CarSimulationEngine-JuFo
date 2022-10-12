@@ -83,14 +83,14 @@ public class Program{
 		int y1 = (int)((rg.points[rg.roads[r].points[p].index].y - minY) * factorY);
 		int x2 = (int)((rg.points[rg.roads[r].points[p + 1].index].x - minX) * factorX);
 		int y2 = (int)((rg.points[rg.roads[r].points[p + 1].index].y - minY) * factorY);
-		///*Debuging
+		/*Debuging
 		PF.Rgba32 color = PF.Rgba32.ParseHex("ffffff");
 		color.B /= (byte)(r + 1);
 		color.R /= (byte)(p + 1);
-		Console.WriteLine("\t" + x1 + " " + y1 + " till " + x2 + " " + y2 + "with color: " + color.ToHex());
+		Console.WriteLine("\t" + x1 + " " + y1 + " till " + x2 + " " + y2 + " with color: " + color.ToHex());
 		DrawLine(x1, y1, x2, y2, color, (int)rg.roads[r].lanes * 8);
-		//*/
-		//DrawLine(x1, y1, x2, y2, PF.Rgba32.ParseHex("404040"), (int)rg.roads[r].lanes * 8);
+		*/
+		DrawLine(x1, y1, x2, y2, PF.Rgba32.ParseHex("404040"), (int)rg.roads[r].lanes * 8);
 	    }
 	}
 	
