@@ -1,4 +1,4 @@
-﻿using System; using System.Drawing;
+﻿using System;
 using System.IO;
 using SixLabors.ImageSharp;
 using PF = SixLabors.ImageSharp.PixelFormats;
