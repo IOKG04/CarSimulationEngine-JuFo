@@ -7,10 +7,10 @@ Int64 Number of cars
   Double  Velocity X
   Double  Velocity Y
   Double  Accelleration
-  Double  Steering
-
+  Double  Steering (radians from (1, 0))
   Double  Size X
   Double  Size Y
   Double  Rotation
+
   Int32 Color (hex-code)
 \]

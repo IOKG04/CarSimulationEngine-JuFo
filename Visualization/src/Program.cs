@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
 using SixLabors.ImageSharp;
-using PF = SixLabors.ImageSharp.PixelFormats;
+using Rgba32 = SixLabors.ImageSharp.PixelFormats.Rgba32;
 using Visualization;
 
 namespace Visualization;
 
 public class Program{
-    public static Image<PF.Rgba32> outputImage;
+    public static Image<Rgba32> outputImage;
     public static string outputPath, rgPath, sfPath;
     public static bool simulationFrame;
-    public static int minArgPos;
+    public static int minArgPos, halfPixelsPerLane;
     public static double minX, maxX, minY, maxY, bufferSize;
     public static Roadgrid rg;
 
@@ -23,6 +23,7 @@ public class Program{
 	    Console.WriteLine("\nOptions:");
 	    Console.WriteLine(" -r\t--roadgrid\t\tOnly visualizes a RG_file");
 	    Console.WriteLine(" -o\t--output [File]\t\tStores the result in [File] instead of the default location");
+	    Console.WriteLine(" -l\t--lanesize [Size]\t\tAmount of pixels to use per lane on a road");
 	    //Possibly add dimensions option
 	    //Possibly add bufferSize option
 	    Console.WriteLine("\nDictionary");
@@ -39,7 +40,13 @@ public class Program{
 
 	//Set outputPath
 	outputPath = simulationFrame ? args[minArgPos + 1] + ".png" : args[minArgPos] + ".png";
-	if(ArgPos("-o", args) != -1){outputPath = args[ArgPos("-o", args) + 1]; minArgPos += 2;} if(ArgPos("--output", args) != -1){outputPath = args[ArgPos("--output", args) + 1]; minArgPos += 2;}
+	if(ArgPos("-o", args) != -1){outputPath = args[ArgPos("-o", args) + 1]; minArgPos += 2;}
+	if(ArgPos("--output", args) != -1){outputPath = args[ArgPos("--output", args) + 1]; minArgPos += 2;}
+
+	//Set outputPath
+	halfPixelsPerLane = 8;
+	if(ArgPos("-l", args) != -1){halfPixelsPerLane = int.Parse(args[ArgPos("-l", args) + 1]) / 2; minArgPos += 2;}
+	if(ArgPos("--lanesize", args) != -1){halfPixelsPerLane = int.Parse(args[ArgPos("--lanesize", args) + 1]) / 2; minArgPos += 2;}
 
 	//Set file paths
 	rgPath = args[minArgPos];
@@ -48,8 +55,8 @@ public class Program{
 	if(simulationFrame && File.Exists(sfPath)){Console.WriteLine("SF_file doesn't exist"); return 4;}
 
 	//Create and initialize outputImage
-	outputImage = new Image<PF.Rgba32>(4096, 4096);
-	for(int x = 0; x < outputImage.Width; x++){for(int y = 0; y < outputImage.Height; y++){outputImage[x, y] = PF.Rgba32.ParseHex("000000");}}
+	outputImage = new Image<Rgba32>(4096, 4096);
+	for(int x = 0; x < outputImage.Width; x++){for(int y = 0; y < outputImage.Height; y++){outputImage[x, y] = Rgba32.ParseHex("000000");}}
 
 	//Load rg and sf
 	rg = Roadgrid.FromFile(File.ReadAllBytes(rgPath));
@@ -85,13 +92,13 @@ public class Program{
 		int x2 = (int)((rg.points[rg.roads[r].points[p + 1].index].x - minX) * factorX);
 		int y2 = (int)((rg.points[rg.roads[r].points[p + 1].index].y - minY) * factorY);
 		/*Debuging
-		PF.Rgba32 color = PF.Rgba32.ParseHex("ffffff");
+		Rgba32 color = Rgba32.ParseHex("ffffff");
 		color.B /= (byte)(r + 1);
 		color.R /= (byte)(p + 1);
 		Console.WriteLine("\t" + x1 + " " + y1 + " till " + x2 + " " + y2 + " with color: " + color.ToHex());
 		DrawLine(x1, y1, x2, y2, color, (int)rg.roads[r].lanes * 8);
 		*/
-		DrawLine(x1, y1, x2, y2, PF.Rgba32.ParseHex("404040"), (int)rg.roads[r].lanes * 8);
+		DrawLine(x1, y1, x2, y2, Rgba32.ParseHex("404040"), (int)rg.roads[r].lanes * 8);
 	    }
 	}
 	
@@ -106,44 +113,32 @@ public class Program{
 	return 0;
     }
 
-    public static int DrawLine(int x1, int y1, int x2, int y2, PF.Rgba32 c){
-	//WHAT IS THIS FIX AND WHY DID I HAVE TO DO IT AT ALL???
-	if(!(y1 > y2 && !(x1 >= x2))){
-	    if(x1 > x2){int a = x1; x1 = x2; x2 = a;}
-	    if(y1 > y2){int a = y1; y1 = y2; y2 = a;}
-	}
-	//TODO: Maybe fix, so fix doesn't need to fix
-
+    public static int DrawLine(int x1, int y1, int x2, int y2, Rgba32 c){
+	//TODO: Make function
 	//Calcluate steps
-	int xd = x2 - x1;
-	int yd = y2 - y1;
-	double xs, ys;
-	int amount;
-	if(Math.Abs(xd) >= Math.Abs(yd)){
-	    xs = xd / Math.Abs(xd);
-	    ys = ((double)yd) / Math.Abs(xd);
-	    amount = xd;
+	int dx = x2 - x1;
+	int dy = y2 - y1;
+	float stepx, stepy;
+	int steps;
+	if(Math.Abs(dx) > Math.Abs(dy)){
+	    stepx = 1 * Math.Sign(dx);
+	    stepy = dy / Math.Abs(dx);
+	    steps = (int)Math.Abs(dx);
 	}
 	else{
-	    xs = ((double)xd) / Math.Abs(yd);
-	    ys = yd / Math.Abs(yd);
-	    amount = yd;
+	    stepx = dx / Math.Abs(dy);
+	    stepy = 1 * Math.Sign(dy);
+	    steps = (int)Math.Abs(dy);
 	}
 
-	//Step through steps
-	double x = x1; double y = y1;
-	for(int i = 0; i < amount; i++){
-	    try{
-		outputImage[(int)x, (int)y] = c;
-		x += xs;
-		y += ys;
-	    }catch{}
+	for(int i = 0; i < steps; i++){
+	    outputImage[(int)(x1 + (stepx * i)), (int)(y1 + (stepy * i))] = c;
 	}
 
 	return 0;
     }
 
-    public static int DrawLine(int x1, int y1, int x2, int y2, PF.Rgba32 c, int variation){
+    public static int DrawLine(int x1, int y1, int x2, int y2, Rgba32 c, int variation){
 	//Calcluate distances
 	int xd = (int)Math.Abs(x1 - x2);
 	int yd = (int)Math.Abs(y1 - y2);
