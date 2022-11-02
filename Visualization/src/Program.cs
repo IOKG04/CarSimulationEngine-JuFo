@@ -2,7 +2,6 @@
 using System.IO;
 using SixLabors.ImageSharp;
 using Rgba32 = SixLabors.ImageSharp.PixelFormats.Rgba32;
-using Visualization;
 
 namespace Visualization;
 

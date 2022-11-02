@@ -2,6 +2,8 @@
 
 Int64 Number of cars
 \[
+  Int32 Color (rgba32 hex-code)
+
   Double  Position X
   Double  Position Y
   Double  Velocity X
@@ -11,6 +13,4 @@ Int64 Number of cars
   Double  Size X
   Double  Size Y
   Double  Rotation
-
-  Int32 Color (hex-code)
 \]
